@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build:all",
+  "env": {
+    "DATABASE_PROVIDER": "@database_provider",
+    "DATABASE_URL": "@database_url",
+    "JWT_SECRET": "@jwt_secret",
+    "VITE_API_BASE_URL": "@api_base_url"
+  },
+  "builds": [
+    {
+      "src": "client/vite.config.ts",
+      "use": "@vercel/vite",
+      "config": {
+        "zeroConfig": true
+      }
+    },
+    {
+      "src": "server/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "zeroConfig": true
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/src/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/index.html"
+    }
+  ]
+}

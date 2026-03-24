@@ -74,8 +74,50 @@ router.post('/login', async (req, res) => {
 
 // Utility endpoint to list all bases (needed for frontend dropdowns)
 router.get('/bases', async (req, res) => {
-  const bases = await prisma.base.findMany({ select: { id: true, name: true, location: true } });
+  const bases = await prisma.base.findMany({ 
+    select: { id: true, name: true, location: true, createdAt: true } 
+  });
   res.json(bases);
+});
+
+// Create new base (ADMIN only)
+const baseSchema = z.object({
+  name: z.string().min(2),
+  location: z.string().min(2)
+});
+
+router.post('/bases', async (req, res) => {
+  try {
+    // Check if user is authenticated and is ADMIN
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+    if (decoded.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Only admins can create bases' });
+    }
+
+    const data = baseSchema.parse(req.body);
+    
+    // Check if base with this name already exists
+    const existing = await prisma.base.findFirst({
+      where: { name: data.name }
+    });
+    if (existing) {
+      return res.status(400).json({ error: 'Base with this name already exists' });
+    }
+
+    const base = await prisma.base.create({
+      data: {
+        name: data.name,
+        location: data.location
+      }
+    });
+
+    res.status(201).json(base);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
 // Utility endpoint to list equipment types

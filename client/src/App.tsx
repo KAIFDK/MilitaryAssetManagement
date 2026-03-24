@@ -6,6 +6,7 @@ import { Purchases } from './pages/Purchases';
 import { Transfers } from './pages/Transfers';
 import { Assignments } from './pages/Assignments';
 import { Equipment } from './pages/Equipment';
+import { Bases } from './pages/Bases';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/transfers" element={<Transfers />} />
         <Route path="/assignments" element={<Assignments />} />
         <Route path="/equipment" element={<Equipment />} />
+        <Route path="/bases" element={<Bases />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

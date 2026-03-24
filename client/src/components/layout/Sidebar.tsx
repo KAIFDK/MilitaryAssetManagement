@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, ArrowRightLeft, ClipboardList, Shield } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, ArrowRightLeft, ClipboardList, Shield, Wrench } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../lib/utils';
 
@@ -11,6 +11,7 @@ export const Sidebar = () => {
     { to: '/purchases', icon: ShoppingCart, label: 'Purchases', roles: ['ADMIN', 'LOGISTICS', 'COMMANDER'] },
     { to: '/transfers', icon: ArrowRightLeft, label: 'Transfers', roles: ['ADMIN', 'LOGISTICS', 'COMMANDER'] },
     { to: '/assignments', icon: ClipboardList, label: 'Assignments', roles: ['ADMIN', 'COMMANDER'] },
+    { to: '/equipment', icon: Wrench, label: 'Equipment', roles: ['ADMIN'] },
   ];
 
   return (

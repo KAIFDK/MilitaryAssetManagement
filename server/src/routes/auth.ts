@@ -84,4 +84,46 @@ router.get('/equipment-types', async (req, res) => {
   res.json(eq);
 });
 
+// Create new equipment type (ADMIN only)
+const equipmentSchema = z.object({
+  name: z.string().min(2),
+  category: z.enum(['Vehicle', 'Weapon', 'Ammunition']),
+  description: z.string().optional()
+});
+
+router.post('/equipment-types', async (req, res) => {
+  try {
+    // Check if user is authenticated and is ADMIN
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+    if (decoded.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Only admins can create equipment types' });
+    }
+
+    const data = equipmentSchema.parse(req.body);
+    
+    // Check if equipment type already exists
+    const existing = await prisma.equipmentType.findFirst({
+      where: { name: data.name }
+    });
+    if (existing) {
+      return res.status(400).json({ error: 'Equipment type with this name already exists' });
+    }
+
+    const equipment = await prisma.equipmentType.create({
+      data: {
+        name: data.name,
+        category: data.category,
+        description: data.description || ''
+      }
+    });
+
+    res.status(201).json(equipment);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 export default router;

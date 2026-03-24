@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Base {
+  id           String             @id @default(uuid())
+  name         String
+  location     String
+  users        User[]
+  transactions AssetTransaction[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+// role strings: ADMIN, COMMANDER, LOGISTICS
+
+model User {
+  id           String             @id @default(uuid())
+  name         String
+  email        String             @unique
+  password     String
+  role         String             @default("LOGISTICS")
+  baseId       String?
+  base         Base?              @relation(fields: [baseId], references: [id])
+  transactions AssetTransaction[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model EquipmentType {
+  id           String             @id @default(uuid())
+  name         String
+  category     String             // 'Vehicle', 'Weapon', 'Ammunition'
+  description  String?
+  transactions AssetTransaction[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+// transaction types: PURCHASE, TRANSFER_IN, TRANSFER_OUT, ASSIGNMENT, RETURN, EXPENDITURE
+
+model AssetTransaction {
+  id              String          @id @default(uuid())
+  type            String
+  quantity        Int
+  date            DateTime        @default(now())
+  notes           String?
+  
+  equipmentTypeId String
+  equipmentType   EquipmentType   @relation(fields: [equipmentTypeId], references: [id])
+  
+  baseId          String
+  base            Base            @relation(fields: [baseId], references: [id])
+  
+  // This helps trace transfers (e.g. knowing where a TRANSFER_IN came from)
+  // or storing the recipient of an ASSIGNMENT.
+  referenceId     String?         
+
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}

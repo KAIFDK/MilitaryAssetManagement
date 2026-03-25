@@ -1,6 +1,7 @@
 {
   "version": 2,
   "buildCommand": "npm run build:all",
+  "framework": "vite",
   "env": {
     "DATABASE_PROVIDER": "@database_provider",
     "DATABASE_URL": "@database_url",
@@ -9,28 +10,23 @@
   },
   "builds": [
     {
-      "src": "client/vite.config.ts",
-      "use": "@vercel/vite",
-      "config": {
-        "zeroConfig": true
-      }
+      "src": "client/package.json",
+      "use": "@vercel/vite"
     },
     {
-      "src": "server/package.json",
-      "use": "@vercel/node",
-      "config": {
-        "zeroConfig": true
-      }
+      "src": "server/src/index.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/src/index.ts"
+      "dest": "server/src/index.ts",
+      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
     },
     {
       "src": "/(.*)",
-      "dest": "/client/index.html"
+      "dest": "client/index.html"
     }
   ]
 }
